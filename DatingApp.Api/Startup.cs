@@ -66,8 +66,8 @@ namespace DatingApp.Api
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                Seed seeder = new Seed(ctx);
-                seeder.SeedUsers();
+                //Seed seeder = new Seed(ctx);
+                //seeder.SeedUsers();
             }
             else
             {
