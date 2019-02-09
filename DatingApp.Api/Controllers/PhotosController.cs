@@ -100,5 +100,41 @@ namespace DatingApp.Api.Controllers
 
 
         }
+
+        [HttpPost("{id}/setMain")]
+        public async Task<IActionResult> SetMainPhoto(int userId, int id){
+
+               //Check if the claim for NameIdentifier/(The users db Id) parsed to an int matches the Id
+            if(userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value)){
+                return Unauthorized();
+            }
+
+            //getting change tracked user from the db
+            var userFromRepo = await _repo.GetUser(userId);
+
+            if(!userFromRepo.Photos.Any(p => p.Id == id))
+               return Unauthorized();
+
+            var photoFromRepo = await _repo.GetPhoto(id);
+
+            if(photoFromRepo.IsMain)
+               return BadRequest("This is already your main photo");
+
+            var currentMainPhoto = await _repo.GetMainPhotoForUser(userId);
+
+            if(currentMainPhoto != null){
+                currentMainPhoto.IsMain = false;
+            }
+
+            if(photoFromRepo != null){
+                photoFromRepo.IsMain =true;
+            }
+
+            if(await _repo.SaveAll()){
+                return NoContent();
+            }
+
+            return BadRequest("There was an issue with changing the photo please try again");
+        }
     }
 }

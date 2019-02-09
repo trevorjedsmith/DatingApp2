@@ -3,6 +3,7 @@ import { Photo } from 'src/_models/Photos';
 import { FileUploader } from 'ng2-file-upload';
 import { environment } from 'src/environments/environment' ;
 import { AuthService } from 'src/_services/auth.service';
+import { repeat } from 'rxjs/operators';
 
 @Component({
   selector: 'app-photo-editor',
@@ -39,6 +40,24 @@ export class PhotoEditorComponent implements OnInit {
     });
 
     this.uploader.onAfterAddingFile = (file) => { file.withCredentials = false; };
+
+    this.uploader.onSuccessItem = (item, response, status, headers) =>  {
+
+      if(response) {
+        const resp: Photo =  JSON.parse(response);
+
+        const photo = {
+            id: resp.id,
+            url: resp.url,
+            dateAdded: resp.dateAdded,
+            description: resp.description,
+            isMain: resp.isMain,
+            isApproved: resp.isApproved
+        };
+
+        this.photos.push(photo);
+      }
+    };
   }
 
 }
