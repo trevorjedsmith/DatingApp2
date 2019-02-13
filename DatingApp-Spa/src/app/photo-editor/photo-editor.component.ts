@@ -1,9 +1,11 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { Photo } from 'src/_models/Photos';
 import { FileUploader } from 'ng2-file-upload';
 import { environment } from 'src/environments/environment' ;
 import { AuthService } from 'src/_services/auth.service';
 import { repeat } from 'rxjs/operators';
+import { UserServiceService } from 'src/_services/UserService.service';
+import { AlertifyService } from 'src/_services/Alertify.service';
 
 @Component({
   selector: 'app-photo-editor',
@@ -13,12 +15,14 @@ import { repeat } from 'rxjs/operators';
 export class PhotoEditorComponent implements OnInit {
 
   @Input() photos: Photo[];
+  @Output() getMemberPhotoChange = new EventEmitter<string>();
 
   public uploader: FileUploader; // = new FileUploader({url: URL});
   public hasBaseDropZoneOver = false;
   baseUrl = environment.baseUrl;
+  currentMain: Photo;
 
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService, private userService: UserServiceService, private alertify: AlertifyService) { }
 
   ngOnInit() {
     this.initializeUploader();
@@ -43,7 +47,7 @@ export class PhotoEditorComponent implements OnInit {
 
     this.uploader.onSuccessItem = (item, response, status, headers) =>  {
 
-      if(response) {
+      if (response) {
         const resp: Photo =  JSON.parse(response);
 
         const photo = {
@@ -60,4 +64,25 @@ export class PhotoEditorComponent implements OnInit {
     };
   }
 
+  setMainPhoto(photo: Photo) {
+    this.userService.setMainPhoto(this.authService.decodedToken.nameid, photo.id).subscribe(() => {
+    this.currentMain = this.photos.filter(p => p.isMain === true)[0];
+    this.currentMain.isMain = false;
+    photo.isMain = true;
+    this.getMemberPhotoChange.emit(photo.url);
+    }, error => {
+    this.alertify.error(error);
+    });
+  }
+
+  deletePhoto(id: number) {
+    this.alertify.confirm('Are you sure you want to delete this photo?', () => {
+      this.userService.deletePhoto(this.authService.decodedToken.nameid, id).subscribe(() => {
+        this.photos.splice(this.photos.findIndex(p => p.id === id), 1);
+        this.alertify.success('Photo has been deleted');
+      }, error => {
+        this.alertify.error('Failed to delete the photo!');
+      });
+    });
+  }
 }

@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using DatingApp.Api.Data;
 using DatingApp.Api.Dtos;
 using DatingApp.Api.Models;
@@ -14,13 +15,15 @@ namespace DatingApp.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController:ControllerBase
+    public class AuthController : ControllerBase
     {
         private readonly IAuthRepository _authRepo;
         private readonly IConfiguration _config;
+        private readonly IMapper mapper;
 
-        public AuthController(IAuthRepository authRepo, IConfiguration config)
+        public AuthController(IAuthRepository authRepo, IConfiguration config, IMapper mapper)
         {
+            this.mapper = mapper;
             _authRepo = authRepo;
             _config = config;
         }
@@ -29,7 +32,7 @@ namespace DatingApp.Api.Controllers
         public async Task<IActionResult> Register(UserForRegisterDto userForRegisterDto)
         {
             //validate request
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -37,7 +40,7 @@ namespace DatingApp.Api.Controllers
             //tolower
             var usernameToLower = userForRegisterDto.Username.ToLower();
 
-            if(await _authRepo.UserExists(usernameToLower))
+            if (await _authRepo.UserExists(usernameToLower))
             {
                 return BadRequest("Username already exists");
             }
@@ -54,26 +57,26 @@ namespace DatingApp.Api.Controllers
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(UserForLoginDto loginDto)
-        {    
-      
+        {
 
-            var userFromRepo = await _authRepo.Login(loginDto.Username.ToLower(),loginDto.Password);
 
-            if(userFromRepo == null)
+            var userFromRepo = await _authRepo.Login(loginDto.Username.ToLower(), loginDto.Password);
+
+            if (userFromRepo == null)
             {
                 return Unauthorized();
             }
 
-            var claims = new []
+            var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier,userFromRepo.Id.ToString()),
                 new Claim(ClaimTypes.Name, userFromRepo.Username.ToString())
             };
 
-            var key =  new SymmetricSecurityKey(
+            var key = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_config.GetSection("AppSettings:Token").Value));
 
-            var creds = new SigningCredentials(key,SecurityAlgorithms.HmacSha512Signature);
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
             //Token Creation
 
@@ -88,8 +91,12 @@ namespace DatingApp.Api.Controllers
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
-            return Ok(new {
-                token = tokenHandler.WriteToken(token)
+            var user = mapper.Map<UserForListDto>(userFromRepo);
+
+            return Ok(new
+            {
+                token = tokenHandler.WriteToken(token),
+                user = user
             });
         }
     }
