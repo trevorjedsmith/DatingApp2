@@ -29,7 +29,7 @@ export class MemberDetailComponent implements OnInit {
           imagePercent: 100,
           preview: false
       }
-   ]; 
+   ];
 
     this.galleryImages = [];
 

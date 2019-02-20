@@ -59,7 +59,10 @@ export class PhotoEditorComponent implements OnInit {
             isApproved: resp.isApproved
         };
 
+        console.log(photo);
+
         this.photos.push(photo);
+        this.getMemberPhotoChange.emit(photo.url);
       }
     };
   }
