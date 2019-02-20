@@ -1,5 +1,6 @@
 using System;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 
 namespace DatingApp.Api.Helpers
 {
@@ -10,6 +11,14 @@ namespace DatingApp.Api.Helpers
             response.Headers.Add("Application-Error",message);
             response.Headers.Add("Access-Control-Expose-Headers","Application-Error");
             response.Headers.Add("Access-Control-Expose-Origin","*");
+        }
+
+        public static void AddPagination(this HttpResponse response, int currentPage, 
+        int totalItems, int totalPages, int itemsPerPage ){
+
+            var pagination = new PaginationHeader(currentPage,itemsPerPage,totalPages,totalItems);
+            response.Headers.Add("Pagination", JsonConvert.SerializeObject(pagination));
+            response.Headers.Add("Access-Control-Expose-Headers","Pagination");
         }
 
         public static int CalculateAge(this DateTime theDateTime)
