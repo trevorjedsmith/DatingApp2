@@ -1,32 +1,39 @@
+// Angular Module
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+
+// Custom Modules
+import { BsDropdownModule, TabsModule, BsDatepickerModule } from 'ngx-bootstrap';
 import { NgxGalleryModule } from 'ngx-gallery';
+import { FileUploadModule } from 'ng2-file-upload';
+import { JwtModule } from '@auth0/angular-jwt';
 
+// Components
 import { AppComponent } from './app.component';
-
 import { NavComponent } from './nav/nav.component';
-import { AuthService } from 'src/_services/auth.service';
 import { HomeComponent } from './home/home.component';
 import { RegisterComponent } from './register/register.component';
-import { AlertifyService } from 'src/_services/Alertify.service';
-import { BsDropdownModule, TabsModule, BsDatepickerModule } from 'ngx-bootstrap';
 import { MemberListComponent } from './member-list/member-list.component';
 import { ListsComponent } from './lists/lists.component';
 import { MessagesComponent } from './messages/messages.component';
-import { RouterModule } from '@angular/router';
-import { appRoutes } from './routes';
-import { AuthGuard } from 'src/_guards/auth.guard';
-import { UserServiceService } from 'src/_services/UserService.service';
 import { MemberCardComponent } from './member-card/member-card.component';
-import { JwtModule } from '@auth0/angular-jwt';
 import { MemberDetailComponent } from './member-detail/member-detail.component';
 import { MemberEditComponent } from './member-edit/member-edit.component';
 import { MemberEditResolver } from 'src/_services/member-edit.resolver';
 import { PreventUnsavedChanges } from 'src/_guards/prevent-unsave-changes.guards';
 import { PhotoEditorComponent } from './photo-editor/photo-editor.component';
-import { FileUploadModule } from 'ng2-file-upload';
+
+// Services
+import { AuthGuard } from 'src/_guards/auth.guard';
+import { UserServiceService } from 'src/_services/UserService.service';
+import { AlertifyService } from 'src/_services/Alertify.service';
+import { AuthService } from 'src/_services/auth.service';
+
+// Routes
+import { appRoutes } from './routes';
 
 export function tokenGetter() {
    return localStorage.getItem('token');
