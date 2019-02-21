@@ -131,7 +131,9 @@ namespace DatingApp.Api.Controllers
             }
 
             if(await _repo.SaveAll()){
-                return NoContent();
+                //we don't want to return the full user as this has password and salt
+                var user = _mapper.Map<UserForListDto>(userFromRepo);
+                return Ok(user);
             }
 
             return BadRequest("There was an issue with changing the photo please try again");

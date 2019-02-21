@@ -6,6 +6,7 @@ import { AuthService } from 'src/_services/auth.service';
 import { repeat } from 'rxjs/operators';
 import { UserServiceService } from 'src/_services/UserService.service';
 import { AlertifyService } from 'src/_services/Alertify.service';
+import { User } from 'src/_models/User';
 
 @Component({
   selector: 'app-photo-editor',
@@ -59,19 +60,23 @@ export class PhotoEditorComponent implements OnInit {
             isApproved: resp.isApproved
         };
 
-        console.log(photo);
-
         this.photos.push(photo);
-        this.getMemberPhotoChange.emit(photo.url);
+        if (photo.isMain) {
+          this.getMemberPhotoChange.emit(photo.url);
+        }
       }
     };
   }
 
   setMainPhoto(photo: Photo) {
-    this.userService.setMainPhoto(this.authService.decodedToken.nameid, photo.id).subscribe(() => {
+    this.userService.setMainPhoto(this.authService.decodedToken.nameid, photo.id).subscribe((user: User) => {
     this.currentMain = this.photos.filter(p => p.isMain === true)[0];
     this.currentMain.isMain = false;
     photo.isMain = true;
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+      this.authService.currentUser = user;
+    }
     this.getMemberPhotoChange.emit(photo.url);
     }, error => {
     this.alertify.error(error);
