@@ -7,6 +7,7 @@ import { RouterModule } from '@angular/router';
 
 // Custom Modules
 import { BsDropdownModule, TabsModule, BsDatepickerModule } from 'ngx-bootstrap';
+import { PaginationModule } from 'ngx-bootstrap';
 import { NgxGalleryModule } from 'ngx-gallery';
 import { FileUploadModule } from 'ng2-file-upload';
 import { JwtModule } from '@auth0/angular-jwt';
@@ -62,6 +63,7 @@ export function tokenGetter() {
       BsDatepickerModule.forRoot(),
       RouterModule.forRoot(appRoutes),
       TabsModule.forRoot(),
+      PaginationModule.forRoot(),
       ReactiveFormsModule,
       FileUploadModule,
       JwtModule.forRoot({
