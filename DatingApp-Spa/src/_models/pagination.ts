@@ -1,4 +1,4 @@
-export interface Pagination {
+export class Pagination {
     currentPage: number;
     totalPages: number;
     itemsPerPage: number;
