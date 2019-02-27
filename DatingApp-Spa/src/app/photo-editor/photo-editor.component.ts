@@ -79,7 +79,7 @@ export class PhotoEditorComponent implements OnInit {
     }
     this.getMemberPhotoChange.emit(photo.url);
     }, error => {
-    this.alertify.error(error);
+    this.alertify.error(error.error);
     });
   }
 

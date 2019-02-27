@@ -40,7 +40,7 @@ export class MemberListComponent implements OnInit {
       this.pagination.totalPages = users.pagination.totalPages;
       this.pagination.itemsPerPage = users.pagination.itemsPerPage;
     }, error => {
-      this.alertify.error(error);
+      this.alertify.error(error.error);
     });
   }
 
