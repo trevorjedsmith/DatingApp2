@@ -35,6 +35,7 @@ import { AuthService } from 'src/_services/auth.service';
 
 // Routes
 import { appRoutes } from './routes';
+import { ListsResolver } from 'src/_resolvers/ListResolver';
 
 export function tokenGetter() {
    return localStorage.getItem('token');
@@ -81,7 +82,8 @@ export function tokenGetter() {
       AuthGuard,
       UserServiceService,
       MemberEditResolver,
-      PreventUnsavedChanges
+      PreventUnsavedChanges,
+      ListsResolver
    ],
    bootstrap: [
       AppComponent

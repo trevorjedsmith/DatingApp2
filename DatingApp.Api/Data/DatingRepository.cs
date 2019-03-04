@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DatingApp.Api.Helpers;
 using DatingApp.Api.Models;
+using DatingApp.API.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DatingApp.Api.Data
@@ -59,32 +60,34 @@ namespace DatingApp.Api.Data
 
         public async Task<PagedList<User>> GetUsers(UserParams userParams)
         {
-            var users =  _context.Users.Include(x=> x.Photos).AsQueryable();
+            var users = _context.Users.Include(p => p.Photos)
+                .OrderByDescending(u => u.LastActive).AsQueryable();
 
-            users = users.Where(u=> u.Id != userParams.UserId);
+            users = users.Where(u => u.Id != userParams.UserId);
 
-            users = users.Where(u=> u.Gender == userParams.Gender);
+            users = users.Where(u => u.Gender == userParams.Gender);
 
-            if(userParams.Likers)
+            if (userParams.Likers)
             {
-                var userLikers = await GetUserLikes(userParams.UserId,userParams.Likers);
-                users = users.Where(x=> userLikers.Contains(x.Id));
+                var userLikers = await GetUserLikes(userParams.UserId, userParams.Likers);
+                users = users.Where(u => userLikers.Contains(u.Id));
             }
 
-            if(userParams.Likees)
+            if (userParams.Likees)
             {
-                var userLikees = await GetUserLikes(userParams.UserId,userParams.Likers);
-                users = users.Where(x=> userLikees.Contains(x.Id));
+                var userLikees = await GetUserLikes(userParams.UserId, userParams.Likers);
+                users = users.Where(u => userLikees.Contains(u.Id));
             }
 
-            if(userParams.MinAge != 18 || userParams.MaxAge != 99){
+            if (userParams.MinAge != 18 || userParams.MaxAge != 99)
+            {
                 var minDob = DateTime.Today.AddYears(-userParams.MaxAge - 1);
                 var maxDob = DateTime.Today.AddYears(-userParams.MinAge);
 
-                users = users.Where(u=> u.DateOfBirth >= minDob && u.DateOfBirth <= maxDob);
+                users = users.Where(u => u.DateOfBirth >= minDob && u.DateOfBirth <= maxDob);
             }
 
-            return await PagedList<User>.CreateAsync(users,userParams.PageNumber,userParams.PageSize);
+            return await PagedList<User>.CreateAsync(users, userParams.PageNumber, userParams.PageSize);
         }
 
         private async Task<IEnumerable<int>> GetUserLikes(int id, bool liker)
@@ -112,6 +115,37 @@ namespace DatingApp.Api.Data
         public async Task<bool> SaveAll()
         {
             return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<Message> GetMessage(int id)
+        {
+           return await _context.Messages.FirstOrDefaultAsync(x=> x.Id == id);
+        }
+
+        public async Task<PagedList<Message>> GetMessagesForUser(MessageParams messageParams)
+        {
+            var messages = _context.Messages.Include(u=> u.Sender).ThenInclude(u=> u.Photos)
+                           .Include(u=> u.Recipient).ThenInclude(u=> u.Photos).AsQueryable();
+
+            switch(messageParams.MessageContainer){
+                case "Inbox":
+                messages = messages.Where(x=> x.RecipientId == messageParams.UserId);
+                break;
+                case "Outbox":
+                messages = messages.Where(x=> x.SenderId == messageParams.UserId);
+                break;
+                default:
+                messages = messages.Where(x=> x.RecipientId == messageParams.UserId && x.IsRead == false);
+                break;
+            }
+
+            messages = messages.OrderByDescending(d=> d.MessageSent);
+            return await PagedList<Message>.CreateAsync(messages,messageParams.PageNumber,messageParams.PageSize);
+        }
+
+         public Task<IEnumerable<Message>> GetMessageThread(int userId, int recipientId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

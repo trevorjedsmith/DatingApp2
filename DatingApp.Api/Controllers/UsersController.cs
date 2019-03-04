@@ -28,7 +28,7 @@ namespace DatingApp.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetUsers(int pageNumber, int pageSize, string gender, int maxAge, int minAge ){
+        public async Task<IActionResult> GetUsers(int pageNumber, int pageSize, string gender,bool likers, bool likees, int maxAge = 99, int minAge = 18){
 
             var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
 
@@ -39,7 +39,9 @@ namespace DatingApp.Api.Controllers
             PageSize= pageSize,
             Gender = gender,
             MaxAge = maxAge,
-            MinAge = minAge
+            MinAge = minAge,
+            Likees = likees,
+            Likers = likers
             };
 
             userParams.UserId = currentUserId;
