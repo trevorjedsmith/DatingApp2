@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { User } from 'src/_models/User';
 import { PaginatedResult } from 'src/_models/pagination';
 import { map } from 'rxjs/operators';
+import { Message } from 'src/_models/Message';
 
 // const httpOptions = {
 //  headers: new HttpHeaders({
@@ -53,6 +54,31 @@ getUsers(page?, itemsPerPage?, userParams?, likesParam?): Observable<PaginatedRe
     }
     return paginatedResult;
   }));
+}
+
+getMessages(id: number, page?, itemsPerPage?, messageContainer?) {
+  const paginatedResult: PaginatedResult<Message[]> = new PaginatedResult<Message[]>();
+
+  let params = new HttpParams();
+
+  params = params.append('MessageContainer', messageContainer);
+
+  if (page != null && itemsPerPage != null) {
+    params = params.append('pageNumber', page);
+    params = params.append('pageSize', itemsPerPage);
+  }
+
+  return this.http.get<Message[]>(this.baseUrl + 'users/' + id + '/messages', {observe: 'response', params})
+    .pipe(
+      map(response => {
+        paginatedResult.result = response.body;
+        if (response.headers.get('Pagination') !== null) {
+          paginatedResult.pagination = JSON.parse(response.headers.get('Pagination'));
+        }
+
+        return paginatedResult;
+      })
+    );
 }
 
 getUser(id: number): Observable<User> {

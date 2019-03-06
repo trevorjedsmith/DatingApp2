@@ -9,6 +9,7 @@ import { MemberEditComponent } from './member-edit/member-edit.component';
 import { MemberEditResolver } from 'src/_services/member-edit.resolver';
 import { PreventUnsavedChanges } from 'src/_guards/prevent-unsave-changes.guards';
 import { ListsResolver } from 'src/_resolvers/ListResolver';
+import { MessagesResolver } from 'src/_resolvers/MessagesResolver';
 
 export const appRoutes: Routes = [
 {path: 'home', component: HomeComponent},
@@ -16,7 +17,7 @@ export const appRoutes: Routes = [
 {path: 'members/:id', component: MemberDetailComponent, canActivate: [AuthGuard]},
 {path: 'member/edit', component: MemberEditComponent, canActivate: [AuthGuard],
  resolve: {user: MemberEditResolver}, canDeactivate: [PreventUnsavedChanges]},
-{path: 'messages', component: MessagesComponent, canActivate: [AuthGuard]},
+{path: 'messages', component: MessagesComponent, canActivate: [AuthGuard], resolve: {messages: MessagesResolver}},
 {path: 'lists', component: ListsComponent, canActivate: [AuthGuard], resolve: {users: ListsResolver}},
 {path: '**', redirectTo: 'home', pathMatch: 'full'}
 ];

@@ -36,6 +36,7 @@ import { AuthService } from 'src/_services/auth.service';
 // Routes
 import { appRoutes } from './routes';
 import { ListsResolver } from 'src/_resolvers/ListResolver';
+import { MessagesResolver } from 'src/_resolvers/MessagesResolver';
 
 export function tokenGetter() {
    return localStorage.getItem('token');
@@ -83,7 +84,8 @@ export function tokenGetter() {
       UserServiceService,
       MemberEditResolver,
       PreventUnsavedChanges,
-      ListsResolver
+      ListsResolver,
+      MessagesResolver,
    ],
    bootstrap: [
       AppComponent
