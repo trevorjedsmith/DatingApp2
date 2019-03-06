@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using DatingApp.Api.Data;
 using DatingApp.Api.Dtos;
+using DatingApp.Api.Helpers;
 using DatingApp.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +24,39 @@ namespace DatingApp.Api.Controllers
         {
             _repo = repo;
             _mapper = mapper;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetMessagesForUser(int userId, [FromQuery]MessageParams messageParams){
+ //Check if the claim for NameIdentifier/(The users db Id) parsed to an int matches the Id
+            if(userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value)){
+                return Unauthorized();
+            }
+
+            messageParams.UserId = userId;
+
+            var messagesFromRepo = await _repo.GetMessagesForUser(messageParams);
+
+            var messages = _mapper.Map<IEnumerable<MessageToReturnDto>>(messagesFromRepo);
+
+             Response.AddPagination(messagesFromRepo.CurrentPage, messagesFromRepo.TotalCount, messagesFromRepo.TotalPages, messagesFromRepo.PageSize);
+
+             return Ok(messages);
+
+        }
+
+        [HttpGet("thread/{recipientId}")]
+        public async Task<IActionResult> GetMessageThread(int userId, int recipientId){
+              //Check if the claim for NameIdentifier/(The users db Id) parsed to an int matches the Id
+            if(userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value)){
+                return Unauthorized();
+            }
+
+            var messageFromRepo = await _repo.GetMessageThread(userId, recipientId);
+
+            var messagesToReturn = _mapper.Map<IEnumerable<MessageToReturnDto>>(messageFromRepo);
+
+            return Ok(messagesToReturn);
         }
 
         [HttpGet("{id}",Name="GetMessage")]
